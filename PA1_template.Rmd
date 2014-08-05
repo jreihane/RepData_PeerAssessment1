@@ -43,18 +43,19 @@ Nas in dataset.
 
 2- For imputing missing values, we decided to replace NAs with the mean of the number of steps in that day.
 ```{r}
-imputeNAs <- function(d_item, sq){
-#         mean_steps <- mean(d_item)
-#         mean_steps <- ifelse(is.na(mean_steps), 0, mean_steps)
-        d_item <- ifelse(is.na(d_item), meann[sq,], d_item)
+imputeNAs <- function(d_item, name){
+        mean_steps <- ifelse(is.na(meann[[name]]), 0, meann[[name]])
+        d_item <- ifelse(is.na(d_item), meann[[name]], d_item)
+}
+for (name in names(d2)){
+        lapply(d2[[name]],imputeNAs , name)
 }
 
-imputed <- mapply(d2,imputeNAs, seq_along(d2))
 ```
 
 3 - Now create a new dataset from imputed values:
 ```{r}
-imp_sum <- lapply(imputed,sum)
+imp_sum <- lapply(d2,sum)
 imputed_final <- unsplit(imp_sum,f = dataFile$date)
 
 ```
