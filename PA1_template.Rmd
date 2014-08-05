@@ -1,20 +1,67 @@
+```{r}
+setwd("G:\\Projects\\R\\Reproducible\\RepData_PeerAssessment1")
+```
+
 # Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-
-
+```{r, echo=TRUE}
+dataFile <- read.csv("activity2.csv")
+dataFile$date <- as.Date(dataFile$date, format="%d/%m/%Y")
+```
 
 ## What is mean total number of steps taken per day?
+```{r mm}
+d2 <- with(dataFile, split(steps,date))
+s1 <- lapply(d2,sum, na.rm = T)
+s2 <- unsplit(value = s1,f = dataFile$date)
 
+hist(s2,xlab="per day")
+```
 
+mean and median of the steps in each day is:
+
+```{r}
+(matrix(c(meann <- lapply(d2,mean,na.rm=TRUE),mediann <- lapply(d2,median,na.rm=TRUE)), ncol = 2))
+```
 
 ## What is the average daily activity pattern?
-
-
+```{r}
+ss <- aggregate(x = dataFile, by = list(dataFile$date,dataFile$interval), FUN = mean, na.rm = T)
+plot(ss$interval,ss$steps,type = "l")
+```
 
 ## Imputing missing values
+1- We have
+```{r}
+nas <- dataFile[which(is.na(dataFile$steps)),]
+nrow(nas)
+```
 
+Nas in dataset.
 
+2- For imputing missing values, we decided to replace NAs with the mean of the number of steps in that day.
+```{r}
+imputeNAs <- function(d_item, sq){
+#         mean_steps <- mean(d_item)
+#         mean_steps <- ifelse(is.na(mean_steps), 0, mean_steps)
+        d_item <- ifelse(is.na(d_item), meann[sq,], d_item)
+}
+
+imputed <- mapply(d2,imputeNAs, seq_along(d2))
+```
+
+3 - Now create a new dataset from imputed values:
+```{r}
+imp_sum <- lapply(imputed,sum)
+imputed_final <- unsplit(imp_sum,f = dataFile$date)
+
+```
+
+4- Make a histogram of new dataset:
+```{r}
+hist(imputed_final)
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
