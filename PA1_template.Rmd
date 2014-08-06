@@ -6,12 +6,19 @@ setwd("G:\\Projects\\R\\Reproducible\\RepData_PeerAssessment1")
 
 
 ## Loading and preprocessing the data
+
+The only process we do is transforming date into proper date object.
+
 ```{r, echo=TRUE}
 dataFile <- read.csv("activity2.csv")
 dataFile$date <- as.Date(dataFile$date, format="%d/%m/%Y")
 ```
 
 ## What is mean total number of steps taken per day?
+1- Make a histogram of all steps in each day
+
+* I don't set the breaks option.
+
 ```{r mm}
 d2 <- with(dataFile, split(steps,date))
 s1 <- lapply(d2,sum, na.rm = T)
@@ -20,13 +27,16 @@ s2 <- unsplit(value = s1,f = dataFile$date)
 hist(s2,xlab="per day")
 ```
 
-mean and median of the steps in each day is:
+2- mean and median of the steps in each day is:
 
 ```{r}
 (matrix(c(meann <- lapply(d2,mean,na.rm=TRUE),mediann <- lapply(d2,median,na.rm=TRUE)), ncol = 2))
 ```
 
 ## What is the average daily activity pattern?
+1- Make a time series plot.
+
+* It seems the 800th and 900th interval have the most steps done
 ```{r}
 ss <- aggregate(x = dataFile, by = list(dataFile$date,dataFile$interval), FUN = mean, na.rm = T)
 plot(ss$interval,ss$steps,type = "l")
@@ -86,15 +96,17 @@ q$daytype <- 'weekday'
 q[which(weekdays(q$date) %in% c('Saturday','Sunday')),'daytype'] <- 'weekend'
 ```
 
-2- Make the plot:
+2- Make the plot
 ```{r}
 q1 <- with(q, split(steps,daytype))
 subq1 <- subset(q,subset = daytype == 'weekday', select = c("steps","date","interval"))
 ssq1 <- aggregate(x = subq1, by = list(subq1$date,subq1$interval), FUN = mean)
-plot(ssq1$interval,ssq1$steps,type = "l", xlab = "interval", ylab = "amount of steps")
+plot(ssq1$interval,ssq1$steps,type = "l", xlab = "interval", ylab = "amount of steps during the week")
 
 subq2 <- subset(q,subset = daytype == 'weekend', select = c("steps","date","interval"))
 ssq2 <- aggregate(x = subq2, by = list(subq2$date,subq2$interval), FUN = mean)
-plot(ssq2$interval,ssq2$steps,type = "l", xlab = "interval", ylab = "amount of steps")
+plot(ssq2$interval,ssq2$steps,type = "l", xlab = "interval", ylab = "amount of steps in week ends")
 
 ```
+
+These two plots seem very like each other.
